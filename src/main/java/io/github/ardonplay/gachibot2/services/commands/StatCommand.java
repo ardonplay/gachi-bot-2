@@ -51,7 +51,5 @@ public class StatCommand extends BotCommand {
     }
 
     @Override
-    public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-
-    }
+    public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {}
 }

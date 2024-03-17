@@ -4,4 +4,6 @@ services:
     container_name: gachi-bot
     image: ardonplay/gachi-bot:0.0.1-SNAPSHOT
     environment:
-        - BOT_TOKEN=TYPE_BOT_TOKEN_HERE
+        - BOT_TOKEN=PLACE_BOT_TOKEN_HERE
+    volumes:
+      - ./database/:/opt/database/

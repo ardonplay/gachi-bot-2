@@ -37,4 +37,13 @@ public class BadWord {
     public int hashCode() {
         return Objects.hash(id, word, level);
     }
+
+    @Override
+    public String toString() {
+        return "BadWord{" +
+                "id=" + id +
+                ", word='" + word + '\'' +
+                ", level=" + level +
+                '}';
+    }
 }

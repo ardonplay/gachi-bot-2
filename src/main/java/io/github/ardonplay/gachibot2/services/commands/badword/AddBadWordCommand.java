@@ -1,4 +1,4 @@
-package io.github.ardonplay.gachibot2.services.commands;
+package io.github.ardonplay.gachibot2.services.commands.badword;
 
 import io.github.ardonplay.gachibot2.services.BadWordService;
 import io.github.ardonplay.gachibot2.services.MessageGenerationService;
@@ -33,33 +33,43 @@ public class AddBadWordCommand extends BotCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-        SendMessage responseMessage;
-
-        if (arguments.length < 2) {
-            responseMessage = messageGenerationService.sendMessage("И что ты этим хотел сказать?", chat);
-        } else {
-            if (arguments.length > 2) {
-                responseMessage = messageGenerationService.sendMessage("Многа букав", chat);
-            } else {
-                String word = arguments[0];
-                Integer level = 0;
-
-                level= Integer.valueOf(arguments[1]);
-                try {
-                    badWordService.addWord(word, level);
-                    responseMessage = messageGenerationService.sendMessage("Слово " + "\"" + word + "\"" + " добавлено успешно", chat);
-                }catch (WordAlreadyExistsException e){
-                    responseMessage = messageGenerationService.sendMessage("Слово " + "\"" + word + "\"" + " уже существует!", chat);
-                }
-            }
-
-        }
-
-
+        SendMessage responseMessage = responseProcessor(chat, arguments);
         try {
             absSender.execute(responseMessage);
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
+        }
+    }
+
+    private SendMessage responseProcessor(Chat chat, String[] arguments) {
+        if (arguments.length < 2) {
+            return messageGenerationService.sendMessage("И что ты этим хотел сказать?", chat);
+        } else {
+            if (arguments.length > 2) {
+                return messageGenerationService.sendMessage("Многа букав", chat);
+            } else {
+                String word = arguments[0];
+                int level;
+                if(word.length() < 4 || word.length() > 255){
+                    return messageGenerationService.sendMessage("Господа, не сходите с ума...", chat);
+                }
+                try {
+                    level = Integer.parseInt(arguments[1]);
+
+                    if(level < 0){
+                        return messageGenerationService.sendMessage("Это типа как?", chat);
+                    }
+                } catch (NumberFormatException e) {
+                    return messageGenerationService.sendMessage("По вашему " + arguments[1] + " это цифра????", chat);
+                }
+                try {
+                    badWordService.addWord(word, level);
+                    return messageGenerationService.sendMessage("Слово " + "\"" + word + "\"" + " добавлено успешно", chat);
+                } catch (WordAlreadyExistsException e) {
+                    return messageGenerationService.sendMessage("Слово " + "\"" + word + "\"" + " уже существует!", chat);
+                }
+            }
+
         }
     }
 }

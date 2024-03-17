@@ -1,4 +1,4 @@
-package io.github.ardonplay.gachibot2.services.commands;
+package io.github.ardonplay.gachibot2.services.commands.badword;
 
 import io.github.ardonplay.gachibot2.services.BadWordService;
 import io.github.ardonplay.gachibot2.services.MessageGenerationService;

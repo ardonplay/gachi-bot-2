@@ -44,6 +44,7 @@ public class BadWordFilter {
 
         log.info("Message: {}", words);
         List<BadWord> badWords = badWordService.getBadWords();
+        log.info("BadWords: {}", badWords);
         Map<BadWord, Integer> userBadWordStats = new HashMap<>();
         for (BadWord badWord : badWords) {
             for (String word : words) {
@@ -92,11 +93,10 @@ public class BadWordFilter {
 
     private List<Object> levelResponses(int level, Message message) {
         switch (level) {
-
-            case 1 -> {
+            case 0 -> {
                 return List.of(messageGenerationService.sendMessageWithReply("🤡", message));
             }
-            case 2 -> {
+            case 1 -> {
                 return List.of(messageGenerationService.sendSticker("CAACAgIAAxkBAAEIjSBkNlgpIQuL_ga8xvnrRYyTU3-NAwACAhgAAnLcwEt56Ty4vsWYDC8E", message),
                         messageGenerationService.sendMessage("За такие слова я тебя сейчас в бан кину", message.getChat()));
             }

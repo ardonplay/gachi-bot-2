@@ -22,7 +22,7 @@ public class UserEntity {
     private Long id;
 
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
-    private Set<BadWordStat> stats = new HashSet<>();
+    private Set<BadWordStat> stats;
 
     @Override
     public boolean equals(Object o) {

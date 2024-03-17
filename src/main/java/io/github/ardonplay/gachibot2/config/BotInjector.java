@@ -3,7 +3,6 @@ package io.github.ardonplay.gachibot2.config;
 import io.github.ardonplay.gachibot2.services.BotService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
