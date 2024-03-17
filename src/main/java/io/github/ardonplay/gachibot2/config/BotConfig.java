@@ -16,4 +16,5 @@ public class BotConfig {
 
     @Value("${bot.message_length}")
     private int messageLength;
+
 }

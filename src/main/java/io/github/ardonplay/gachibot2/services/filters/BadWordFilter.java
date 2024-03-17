@@ -2,10 +2,11 @@ package io.github.ardonplay.gachibot2.services.filters;
 
 import io.github.ardonplay.gachibot2.model.BadWord;
 import io.github.ardonplay.gachibot2.model.BadWordStat;
+import io.github.ardonplay.gachibot2.model.UserEntity;
 import io.github.ardonplay.gachibot2.services.BadWordService;
 import io.github.ardonplay.gachibot2.services.MessageGenerationService;
 import io.github.ardonplay.gachibot2.services.UserService;
-import lombok.AllArgsConstructor;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,9 +15,12 @@ import org.telegram.telegrambots.meta.api.objects.ChatPermissions;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.time.Duration;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,42 +35,70 @@ public class BadWordFilter {
 
     private List<Object> response;
 
+
+    @Transactional
     public BadWordFilter check(Message message) {
-        int count = 0;
+        int level = 0;
 
         List<String> words = List.of(message.getText().split(" "));
+
+        log.info("Message: {}", words);
         List<BadWord> badWords = badWordService.getBadWords();
-        List<BadWordStat> userBadWordStats = new ArrayList<>();
+        Map<BadWord, Integer> userBadWordStats = new HashMap<>();
         for (BadWord badWord : badWords) {
             for (String word : words) {
                 if (word.contains(badWord.getWord())) {
-                    count++;
+                    if (userBadWordStats.containsKey(badWord)) {
+                        userBadWordStats.put(badWord, userBadWordStats.get(badWord) + 1);
+                    } else {
+                        userBadWordStats.put(badWord, 1);
+                    }
+                    level = Math.max(level, badWord.getLevel());
                 }
             }
         }
 
-        if (count > 0) {
-            response = counterSwitcher(count, message);
+        if (level > 0) {
+            log.info("Count: {}", level);
+            UserEntity user = userService.findByid(message.getFrom().getId());
+
+            Set<BadWordStat> newStat = userBadWordStats.entrySet().stream().map(stat -> BadWordStat.builder()
+                    .badWord(stat.getKey())
+                    .userEntity(user)
+                    .count(stat.getValue()).build()).collect(Collectors.toSet());
+
+            Set<BadWordStat> oldstat = user.getStats().stream().filter(newStat::contains).peek(e -> e.setCount(
+                            newStat.stream()
+                                    .filter(b -> b.equals(e)).findFirst()
+                                    .orElse(new BadWordStat()).getCount() + e.getCount()))
+                    .collect(Collectors.toSet());
+
+            newStat.addAll(oldstat);
+            user.getStats().addAll(newStat);
+            userService.updateUser(user);
+
+            response = levelResponses(level, message);
         }
         return this;
     }
 
-    public void ifPresent(Consumer<? super List<Object>> action) {
+    public void ifNotPassed(Consumer<? super List<Object>> action) {
         if (response != null) {
             action.accept(response);
+            response = null;
         }
     }
 
 
+    private List<Object> levelResponses(int level, Message message) {
+        switch (level) {
 
-    private List<Object> counterSwitcher(int count, Message message) {
-        switch (count) {
-            case 0, 1, 2 -> {
+            case 1 -> {
                 return List.of(messageGenerationService.sendMessageWithReply("🤡", message));
             }
-            case 3 -> {
+            case 2 -> {
                 return List.of(messageGenerationService.sendSticker("CAACAgIAAxkBAAEIjSBkNlgpIQuL_ga8xvnrRYyTU3-NAwACAhgAAnLcwEt56Ty4vsWYDC8E", message),
-                        messageGenerationService.sendMessage("За такие слова я тебя сейчас в бан кину", message));
+                        messageGenerationService.sendMessage("За такие слова я тебя сейчас в бан кину", message.getChat()));
             }
             default -> {
                 return List.of(restrictUser(message.getChatId().toString(), message.getFrom().getId()),

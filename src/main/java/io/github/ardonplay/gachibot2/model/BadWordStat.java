@@ -1,31 +1,28 @@
 package io.github.ardonplay.gachibot2.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Objects;
 
 @Entity(name = "BAD_WORDS_STAT")
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@IdClass(BadWordAnduserId.class)
+@Getter
+@Setter
 public class BadWordStat {
+
     @Id
-    private Integer badWordId;
-    @Id
-    private Long userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "userEntity", referencedColumnName = "id")
+    @JoinColumn(name = "USER_ENTITY", referencedColumnName = "id")
     private UserEntity userEntity;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "badWord", referencedColumnName = "id")
+    @JoinColumn(name = "BAD_WORD", referencedColumnName = "id")
     private BadWord badWord;
 
     private int count;
@@ -35,11 +32,11 @@ public class BadWordStat {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BadWordStat that = (BadWordStat) o;
-        return Objects.equals(badWordId, that.badWordId) && Objects.equals(userId, that.userId) && Objects.equals(userEntity, that.userEntity) && Objects.equals(badWord, that.badWord);
+        return Objects.equals(userEntity, that.userEntity) && Objects.equals(badWord, that.badWord);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(badWordId, userId, userEntity, badWord);
+        return Objects.hash(userEntity, badWord);
     }
 }

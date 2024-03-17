@@ -2,18 +2,17 @@ package io.github.ardonplay.gachibot2.model;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity(name = "BAD_WORDS")
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
+@Setter
 public class BadWord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,6 +20,21 @@ public class BadWord {
 
     private String word;
 
-    @OneToMany(mappedBy = "badWord")
+    private Integer level;
+
+    @OneToMany(mappedBy = "badWord", cascade = CascadeType.ALL)
     private List<BadWordStat> stats;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BadWord badWord = (BadWord) o;
+        return Objects.equals(id, badWord.id) && Objects.equals(word, badWord.word) && Objects.equals(level, badWord.level);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, word, level);
+    }
 }

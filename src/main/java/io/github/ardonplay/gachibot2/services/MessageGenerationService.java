@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendSticker;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
@@ -33,13 +34,10 @@ public class MessageGenerationService {
         return sendMessage;
     }
 
-    public SendMessage sendMessage(String text, Message message) {
-        String chatId = message.getChatId().toString();
+    public SendMessage sendMessage(String text, Chat chat) {
         SendMessage sendMessage = new SendMessage();
-
-        sendMessage.setChatId(chatId);
+        sendMessage.setChatId(chat.getId());
         sendMessage.setText(text);
-
         return sendMessage;
     }
 
