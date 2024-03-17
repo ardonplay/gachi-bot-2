@@ -33,7 +33,6 @@ public class StatCommand extends BotCommand {
     }
 
     @Override
-    @Transactional
     public void processMessage(AbsSender absSender, Message message, String[] arguments) {
         UserEntity userEntity = userService.findByid(message.getFrom().getId());
 

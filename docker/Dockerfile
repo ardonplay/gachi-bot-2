@@ -1,6 +1,6 @@
 FROM amazoncorretto:17
 
-ARG JAR_FOLDER
+ARG JAR_FOLDER='./build/libs'
 WORKDIR /opt
 
 ADD ${JAR_FOLDER}/spring-boot-loader/ ./

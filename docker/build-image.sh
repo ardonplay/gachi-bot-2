@@ -37,6 +37,6 @@ echo "Unpacking JARs"
 unpack .
 
 echo "Building Docker image"
-build . gachi-bot ${APP_VERSION}
+build . ardonplay/gachi-bot ${APP_VERSION}
 
 cd $USER_DIR
